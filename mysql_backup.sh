@@ -11,6 +11,13 @@ db_name="DB1 DB2"
 data_dir="/backup"
 date=`date +%d-%b-%Y`
 
+#Print the time when backup started
+now=$(date)
+echo  "BackupTime: $now"
+
+#Stopping slave replication
+mysqladmin --user=$dbuser --password=$dbpassword stop-slave
+
 for data in $db_name
 do
   echo $data
@@ -20,6 +27,9 @@ do
   scp $data-$date.sql.gz root@192.68.1.10:/backup_data/
   rm -rf $data-$date.sql
 done
+
+#Starting slave replication
+mysqladmin --user=$dbuser --password=$dbpassword start-slave
 
 #deleting old backups
 /usr/bin/find /backup/ -mtime +3 -delete
